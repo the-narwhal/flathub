@@ -8,7 +8,8 @@ sdk-extensions:
   - org.freedesktop.Sdk.Extension.node24
 command: start-proton-meet
 finish-args:
-  # camera
+  # camera; with only --device=dri the webcam isn't listed, even with
+  # --enable-features=WebRtcPipeWireCamera and a working camera portal
   - --device=all
   - --share=ipc
   - --share=network
