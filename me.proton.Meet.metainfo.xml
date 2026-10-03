@@ -30,11 +30,14 @@
 
     <launchable type="desktop-id">me.proton.Meet.desktop</launchable>
 
-    <!-- TODO: replace with real screenshots of the Flatpak build -->
     <screenshots>
         <screenshot type="default">
-            <caption>A Proton Meet call</caption>
-            <image>TODO</image>
+            <caption>A group call</caption>
+            <image>https://pmecdn.protonweb.com/image-transformation/?s=a&amp;image=proton_meet_confidential_calls_hero_2fa5668b00.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>A one-to-one call</caption>
+            <image>https://pmecdn.protonweb.com/image-transformation/?s=a&amp;image=meet_talk_in_total_privacy_1_c57e3286a3.png</image>
         </screenshot>
     </screenshots>
 
