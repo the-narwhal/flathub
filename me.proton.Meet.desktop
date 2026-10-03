@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Proton Meet
+GenericName=Video Conferencing
+Comment=Proton official desktop application for Proton Meet
+Exec=start-proton-meet %U
+Icon=me.proton.Meet
+Terminal=false
+Type=Application
+Categories=Network;VideoConference;
+Keywords=meeting;video;call;conference;encryption;proton;
+MimeType=x-scheme-handler/proton-meet;
+StartupWMClass=Proton Meet
+StartupNotify=true

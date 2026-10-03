@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>me.proton.Meet</id>
+
+    <name>Proton Meet</name>
+    <summary>End-to-end encrypted video meetings</summary>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0</project_license>
+
+    <developer id="me.proton">
+        <name>Proton AG</name>
+    </developer>
+
+    <description>
+        <p>
+            Proton Meet is end-to-end encrypted video conferencing from Proton. Only the
+            people in a meeting can see or hear what is said and shared.
+        </p>
+        <ul>
+            <li>Start or join encrypted video and audio calls</li>
+            <li>Share your screen</li>
+            <li>Open proton-meet:// meeting links directly in the app</li>
+        </ul>
+    </description>
+
+    <url type="homepage">https://proton.me/meet</url>
+    <url type="vcs-browser">https://github.com/ProtonMail/WebClients</url>
+    <url type="help">https://proton.me/support</url>
+
+    <launchable type="desktop-id">me.proton.Meet.desktop</launchable>
+
+    <!-- TODO: replace with real screenshots of the Flatpak build -->
+    <screenshots>
+        <screenshot type="default">
+            <caption>A Proton Meet call</caption>
+            <image>TODO</image>
+        </screenshot>
+    </screenshots>
+
+    <content_rating type="oars-1.1">
+        <content_attribute id="social-chat">intense</content_attribute>
+        <content_attribute id="social-audio">intense</content_attribute>
+    </content_rating>
+
+    <releases>
+        <release version="1.0.12" date="2026-10-02">
+            <description/>
+        </release>
+    </releases>
+</component>

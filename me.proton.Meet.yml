@@ -1,0 +1,109 @@
+app-id: me.proton.Meet
+runtime: org.freedesktop.Platform
+runtime-version: &runtime-version '26.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: *runtime-version
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node24
+command: start-proton-meet
+finish-args:
+  # camera
+  - --device=all
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  # microphone and call audio
+  - --socket=pulseaudio
+  # DBus-based libsecret
+  - --talk-name=org.freedesktop.secrets
+  - --env=XCURSOR_PATH=~/.icons:/app/share/icons:/icons:/run/host/user-share/icons:/run/host/share/icons
+modules:
+  - name: proton-meet
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/node24/bin
+      env:
+        HOME: /run/build/proton-meet
+        # skips husky/config-app in the root postinstall
+        CI: 'true'
+        SENTRY_CLI_SKIP_DOWNLOAD: '1'
+        # the workspace list is trimmed below, so the lockfile will change
+        YARN_ENABLE_IMMUTABLE_INSTALLS: '0'
+        YARN_ENABLE_NETWORK: '0'
+        YARN_ENABLE_TELEMETRY: '0'
+        YARN_ENABLE_GLOBAL_CACHE: '0'
+        YARN_GLOBAL_FOLDER: /run/build/proton-meet/flatpak-node/yarn-berry
+        XDG_CACHE_HOME: /run/build/proton-meet/flatpak-node/cache
+        FLATPAK_ELECTRON_ZIP_DIR: /run/build/proton-meet/flatpak-node/cache/electron
+        npm_config_nodedir: /usr/lib/sdk/node24
+        NODE_ENV: production
+        RELEASE: production
+    build-commands:
+      # drop private registries from .yarnrc.yml and trim the workspace list
+      - python3 prepare-webclients.py
+
+      - bash flatpak-node/setup_sdk_node_headers.sh
+      - yarn plugin import $FLATPAK_BUILDER_BUILDDIR/flatpak-node/flatpak-yarn.js
+      - yarn convertToZip $(which yarn)
+      - yarn install --mode=skip-build
+
+      - cd applications/meet-desktop && yarn exec -- electron-forge package
+
+      - |
+        case "$FLATPAK_ARCH" in
+          aarch64) ELECTRON_ARCH=arm64 ;;
+          *)       ELECTRON_ARCH=x64 ;;
+        esac
+        cp -r "applications/meet-desktop/out/Proton Meet-linux-${ELECTRON_ARCH}" "${FLATPAK_DEST}/proton-meet"
+
+      # To allow separate locales
+      # https://searchfox.org/mozilla-central/rev/8a4f55bc09ffc5c25dcb4586c51ae4a9fee77b4c/taskcluster/docker/firefox-flatpak/runme.sh#131-133
+      - |
+        for lang in ${FLATPAK_DEST}/proton-meet/locales/*.pak
+        do
+          locale="$(basename -s .pak $lang)"
+          install -Dm644 -t "${FLATPAK_DEST}/share/runtime/locale/${locale%%-*}/" "$lang"
+          ln -sf "${FLATPAK_DEST}/share/runtime/locale/${locale%%-*}/$(basename $lang)" "${FLATPAK_DEST}/proton-meet/locales/$(basename $lang)"
+        done
+
+      - install -Dm644 applications/meet-desktop/assets/linux/icon.svg "${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/${FLATPAK_ID}.svg"
+      - install -Dm644 me.proton.Meet.desktop "${FLATPAK_DEST}/share/applications/${FLATPAK_ID}.desktop"
+      - patch-electron-desktop-filename "${FLATPAK_DEST}/proton-meet/resources/app.asar"
+      - install -Dm644 me.proton.Meet.metainfo.xml "${FLATPAK_DEST}/share/metainfo/${FLATPAK_ID}.metainfo.xml"
+      - install -Dm644 LICENSE "${FLATPAK_DEST}/share/licenses/${FLATPAK_ID}/LICENSE"
+      - install -Dm755 start-proton-meet.sh "${FLATPAK_DEST}/bin/start-proton-meet"
+    sources:
+      - type: git
+        url: https://github.com/ProtonMail/WebClients.git
+        tag: proton-meet-desktop@1.0.12
+        commit: 7f1d716b273a2559b89e35cfc227bca114f6dbbd
+        x-checker-data:
+          type: json
+          url: https://proton.me/download/meet/linux/version.json
+          is-main-source: true
+          version-query: .Releases | map(select(.CategoryName == "Stable")) | .[0].Version
+          timestamp-query: .Releases | map(select(.CategoryName == "Stable")) | .[0].ReleaseDate
+          tag-query: '"proton-meet-desktop@" + (.Releases | map(select(.CategoryName
+            == "Stable")) | .[0].Version)'
+
+      # regenerate when the tag changes, see .github/workflows
+      - generated-sources.json
+
+      - type: patch
+        path: electron-zip-dir.patch
+
+      - type: file
+        path: prepare-webclients.py
+
+      - type: file
+        path: me.proton.Meet.desktop
+
+      - type: file
+        path: me.proton.Meet.metainfo.xml
+
+      - type: script
+        dest-filename: start-proton-meet.sh
+        commands:
+          - exec env TMPDIR="$XDG_RUNTIME_DIR/app/${FLATPAK_ID:-me.proton.Meet}" zypak-wrapper "/app/proton-meet/Proton Meet" "$@"

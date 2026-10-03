@@ -1,0 +1,18 @@
+# Created by https://www.toptal.com/developers/gitignore/api/flatpak
+# Edit at https://www.toptal.com/developers/gitignore?templates=flatpak
+
+### Flatpak ###
+.flatpak-builder
+build
+builddir
+build-dir
+repo
+
+# End of https://www.toptal.com/developers/gitignore/api/flatpak
+
+# local build dirs
+_webclient/
+_tools/
+__pycache__/
+_venv/
+build.log

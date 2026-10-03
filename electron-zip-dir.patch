@@ -1,0 +1,11 @@
+--- a/applications/meet-desktop/forge.config.ts
++++ b/applications/meet-desktop/forge.config.ts
+@@ -54,6 +54,8 @@ const config: ForgeConfig = {
+                 },
+             ],
+         },
++        // Use a pre-downloaded Electron zip when building offline (Flatpak)
++        ...(process.env.FLATPAK_ELECTRON_ZIP_DIR ? { electronZipDir: process.env.FLATPAK_ELECTRON_ZIP_DIR } : {}),
+     },
+     rebuildConfig: {},
+     makers: [
